@@ -4,6 +4,7 @@
 #import "RCTConvert.h"
 #import "RCTEventDispatcher.h"
 #import "RCTUtils.h"
+@import Photos;
 @import FirebaseMessaging;
 
 #if __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_8_0
@@ -20,10 +21,11 @@ NSString *const FCMNotificationReceived = @"FCMNotificationReceived";
 
 
 @implementation RNFIRMessaging
-
-RCT_EXPORT_MODULE()
-
 @synthesize bridge = _bridge;
+
+RCT_EXPORT_MODULE();
+
+
 
 - (NSDictionary<NSString *, id> *)constantsToExport
 {
@@ -98,6 +100,14 @@ RCT_REMAP_METHOD(UploadFileToFirebase,
                  : (NSString*) key
                  resolver:(RCTPromiseResolveBlock)resolve
                  rejecter:(RCTPromiseRejectBlock)reject){
+  NSURL *url = [[NSURL alloc] initWithString:localFile];
+  PHFetchResult* assets = [PHAsset fetchAssetsWithALAssetURLs:@[url] options:nil];
+  PHAsset *asset = [assets firstObject];
+  [asset requestContentEditingInputWithOptions:nil
+                             completionHandler:^(PHContentEditingInput *contentEditingInput,
+                                                 NSDictionary *info) {
+                               NSURL *imageFile = contentEditingInput.fullSizeImageURL;
+                               
 
   FIRStorage *storage = [FIRStorage storage];
   // Create a storage reference from our storage service
@@ -109,7 +119,7 @@ RCT_REMAP_METHOD(UploadFileToFirebase,
   FIRStorageReference *riversRef = [storageRef child:key];
   
   // Upload the file to the path "images/rivers.jpg"
-  FIRStorageUploadTask *uploadTask = [riversRef putFile:localFile metadata:nil completion:^(FIRStorageMetadata *metadata, NSError *error) {
+  FIRStorageUploadTask *uploadTask = [riversRef putFile:imageFile metadata:nil completion:^(FIRStorageMetadata *metadata, NSError *error) {
     if (error != nil) {
       // Uh-oh, an error occurred!
       NSLog(@"Error in Uploading File to Firebase", error);
@@ -129,6 +139,7 @@ RCT_REMAP_METHOD(UploadFileToFirebase,
                                                   [self.bridge.eventDispatcher sendAppEventWithName:@"FirebaseUploadProgressChanged" body: @{ @"progress": [NSNumber numberWithFloat:progress], @"key": key}];
                                                   
                                                 }];
+                             }];
   
 }
 
