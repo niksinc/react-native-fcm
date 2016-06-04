@@ -16,6 +16,10 @@ class FCM {
     static requestPermissions() {
         return FIRMessaging.requestPermissions();
     }
+    
+    static UploadFileToFirebase(){
+        return FIRMessaging.UploadFileToFirebase(...arguments);
+    }
 
 }
 
