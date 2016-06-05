@@ -21,11 +21,9 @@ class FCM {
 
 }
 
-<<<<<<< HEAD
-module.exports = FCM;
-=======
+
 FCM.initialData = FIRMessaging.initialData;
 FCM.initialAction = FIRMessaging.initialAction;
 
 module.exports = FCM;
->>>>>>> evollu/master
+
