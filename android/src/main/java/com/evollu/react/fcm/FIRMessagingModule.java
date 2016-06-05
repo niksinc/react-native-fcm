@@ -23,6 +23,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.messaging.RemoteMessage;
+
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
@@ -31,23 +32,54 @@ import com.google.firebase.storage.UploadTask;
 import java.io.ByteArrayOutputStream;
 import java.io.FileDescriptor;
 import java.io.IOException;
+
+
+import android.os.Bundle;
+import android.util.Log;
+
+import android.content.Context;
+
+import java.util.HashMap;
+
 import java.util.Map;
 import java.util.Set;
 
-public class FIRMessagingModule extends ReactContextBaseJavaModule implements LifecycleEventListener {
+public class FIRMessagingModule extends ReactContextBaseJavaModule {
     private final static String TAG = FIRMessagingModule.class.getCanonicalName();
+
     private StorageReference mStorageRef;
     private Uri mDownloadUrl = null;
     private Uri mFileUri = null;
     //private FirebaseAuth mAuth;
 
-    public FIRMessagingModule(ReactApplicationContext reactContext) {
+    Intent mIntent;
+
+
+    public FIRMessagingModule(ReactApplicationContext reactContext, Intent intent) {
         super(reactContext);
 
-        getReactApplicationContext().addLifecycleEventListener(this);
+        mIntent = intent;
 
-        registerNotificationHandler();
         registerTokenRefreshHandler();
+        registerMessageHandler();
+    }
+
+    @Override
+    public Map<String, Object> getConstants() {
+        Map<String, Object> constants = new HashMap<>();
+        if (mIntent != null) {
+            if(mIntent.getExtras() != null) {
+                Map<String, Object> extra = new HashMap<>();
+                Bundle data = mIntent.getExtras();
+                Set<String> keysIterator = data.keySet();
+                for(String key: keysIterator){
+                    extra.put(key, data.get(key));
+                }
+                constants.put("initialData", extra);
+            }
+            constants.put("initialAction", mIntent.getAction());
+        }
+        return constants;
     }
 
     @Override
@@ -145,7 +177,7 @@ public class FIRMessagingModule extends ReactContextBaseJavaModule implements Li
         }, intentFilter);
     }
 
-    private void registerNotificationHandler() {
+    private void registerMessageHandler() {
         IntentFilter intentFilter = new IntentFilter("com.evollu.react.fcm.ReceiveNotification");
 
         getReactApplicationContext().registerReceiver(new BroadcastReceiver() {
@@ -167,18 +199,5 @@ public class FIRMessagingModule extends ReactContextBaseJavaModule implements Li
                 }
             }
         }, intentFilter);
-    }
-
-    @Override
-    public void onHostResume() {
-    }
-
-    @Override
-    public void onHostPause() {
-    }
-
-    @Override
-    public void onHostDestroy() {
-
     }
 }

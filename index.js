@@ -5,8 +5,6 @@ var {NativeModules} = React;
 
 var FIRMessaging = NativeModules.RNFIRMessaging;
 
-console.log(NativeModules.RNFIRMessaging);
-
 class FCM {
 
     static getFCMToken() {
@@ -23,4 +21,11 @@ class FCM {
 
 }
 
+<<<<<<< HEAD
 module.exports = FCM;
+=======
+FCM.initialData = FIRMessaging.initialData;
+FCM.initialAction = FIRMessaging.initialAction;
+
+module.exports = FCM;
+>>>>>>> evollu/master
