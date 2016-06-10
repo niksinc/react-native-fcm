@@ -18,6 +18,11 @@ class FCM {
     static UploadFileToFirebase(){
         return FIRMessaging.UploadFileToFirebase(...arguments);
     }
+    
+      static getDimentionOfImage(){
+      return FIRMessaging.getDimentionOfImage(...arguments);
+
+    };
 
 }
 
